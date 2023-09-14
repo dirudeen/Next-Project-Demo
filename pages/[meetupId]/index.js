@@ -7,23 +7,22 @@ function MeetupDetailsPage(props) {
 
   return (
     <>
-    <Head>
-      <title>{title}</title>
-    </Head>
-    <MeetupDetails
-      image={image}
-      title={title}
-      address={address}
-      description={description}
-    />
+      <Head>
+        <title>{title}</title>
+      </Head>
+      <MeetupDetails
+        image={image}
+        title={title}
+        address={address}
+        description={description}
+      />
     </>
   );
 }
 export async function getStaticPaths() {
-  const client = await MongoClient.connect(
-    "mongodb+srv://dirudeen22:Starwas@cluster0.de5y3y9.mongodb.net/meetups?retryWrites=true&w=majority"
-  );
+  const url = process.env.MONGODB_URL;
 
+  const client = await MongoClient.connect(url);
   const db = client.db();
 
   const meetupCollection = db.collection("meetups");
@@ -31,24 +30,29 @@ export async function getStaticPaths() {
 
   client.close();
   return {
-    paths: meetups.map((meetup) => ({ params: { meetupId: meetup._id.toString() } })),
-    fallback: 'blocking',
-  };b
+    paths: meetups.map((meetup) => ({
+      params: { meetupId: meetup._id.toString() },
+    })),
+    fallback: "blocking",
+  };
+  b;
 }
 
 export async function getStaticProps(context) {
   const { meetupId } = context.params;
-  
-    const client = await MongoClient.connect(
-      "mongodb+srv://dirudeen22:Starwas@cluster0.de5y3y9.mongodb.net/meetups?retryWrites=true&w=majority"
-    );
 
-    const db = client.db();
+  const url = process.env.MONGODB_URL;
 
-    const meetupCollection = db.collection("meetups");
-      const selectedMeetup = await meetupCollection.findOne({_id: new ObjectId(meetupId)})
-      
-    client.close();
+  const client = await MongoClient.connect(url);
+
+  const db = client.db();
+
+  const meetupCollection = db.collection("meetups");
+  const selectedMeetup = await meetupCollection.findOne({
+    _id: new ObjectId(meetupId),
+  });
+
+  client.close();
   return {
     props: {
       meetupData: {
